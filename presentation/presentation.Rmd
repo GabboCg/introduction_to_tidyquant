@@ -1,0 +1,171 @@
+---
+title: "Introducción a tidyquant"
+subtitle: "Llevando el análisis financiero al tidyverse"
+author: "Gabriel Cabrera"
+date: "16 de agosto de 2018"
+output: 
+  beamer_presentation:
+    latex_engine: xelatex
+    theme: "Boadilla"
+    colortheme: "beaver"
+    fonttheme: "structurebold"
+    includes:
+       in_header: "topmatter.tex" 
+classoption: "aspectratio=169"
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Información de Contacto
+
+\begin{center}
+
+\faSend  \enskip \href{mailto:gcabrerag@fen.uchile.cl}{gcabrerag@fen.uchile.cl} \\
+\faChain \enskip \href{https://gcabrerag.rbind.io/}{gcabrerag.rbind.io} \\
+\faTwitter \enskip \href{https://twitter.com/GaboC_g}{@GaboC\_g}  \\
+\faGithub \enskip \href{https://github.com/GaboCg}{@GaboCg} \\
+\faMapMarker \enskip Facultad de Economía \& Negocios, Universidad de Chile  
+\end{center}
+
+# Introducción a tidyquant 
+
+
+## ¿Qué es tidyquant?
+
+1. Una "megalibrería" creada por Matt Dancho ([`@mdancho84`](https://twitter.com/mdancho84?lang=es)) y proxima a ser la base del libro "Reproducible Finance with R: Code Flows and Shiny Apps for Portfolio Analysis" de  Jonathan K. Regenstein Jr. ([`@jkregenstein`](https://twitter.com/jkregenstein?lang=es))
+
+2. **tidyquant** integra los mejores recursos/librerías para colectar y analizar datos financieros: zoo, xts, quantmod, TTR y PerformanceAnalytic, con la infraestructura **tidy data**^[Para mayor detalle ver el paper "Tidy Data (2014)" de Hadley Wickham.] del tidyverse, permitiendo la interacción entre ambos.
+
+3. Nos permite implementar las funciones de  **ggplot2**, para visualizaciones hermosas!!!
+
+## Breve resumen de las librerías
+
+1. xts o eXtensible time series: Es una estructura dato y a la vez una librería para manipular series de tiempo. Detras se encuentra la estructura zoo.
+
+2. quantmod o  Quantitative Financial Modelling & Trading Framework: Es una librería diseñada para 
+recuperar, manipular y modelar datos cuantitativos financieros.
+
+3. TTR o Technical Trading Rules: Librería que incluye varias funciones para computar análisis técnico.
+
+4. PerformanceAnalytics: Librería que incluye una colección de funciones econométricas para desempeño y análisis de riesgo. Se necesita los retornos y no los precios. 
+
+## Pequeñas funciones con mucho poder
+
+1. Obtener data de diversas fuentes podemos usar `tq_get()`.
+
+2. Transmutar data: `tq_transmute()`.
+
+3. mutar data: `tq_mutate()`.
+
+4. Análisis de "performance": ``tq_performance()`.
+
+¿Qué sucede si escribimos `tq_index()`, `tq_index_option` o `tq_exchange()`?
+
+## Descargando el S&P 500
+
+Cargamos las librerías con las que vamos a trabajar
+
+```{r, echo=TRUE, eval = TRUE, message=FALSE, warning=FALSE}
+if(!require("pacman")) install.packages("pacman")
+p_load("tidyverse","tidyquant","ggthemes")
+```
+
+Imaginemos por una momento que necesitamos obtener los precios del S&P 500 desde Enero del 2010 hasta 31 de Agosto del 2018 con periodicidad diaria:
+
+```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
+sp500_precio  <- tq_get("^GSPC", 
+                        get = "stock.prices", 
+                        from = "2010-01-01", 
+                        to = "2018-08-01", 
+                        periodicity = "daily")
+```
+
+Tener presente que `get` es que "tipo" de datos financieros van a decargar. Cuando usamos `stock.prices`, se obtienen los datos desde [Yahoo Finance](https://finance.yahoo.com). Si quisiera los *finacial statements*, escribo `get = "financial"` y los descarga desde **Google Finance**.
+
+## Ahora con quantmod
+
+Podemos hacer los mismo de muchas formas, por ejemplo, usar directamente `quantmod`
+
+```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
+sp500_quantmod <- getSymbols("^GSPC", 
+                             src = "yahoo",
+                             from = "2010-01-01", 
+                             to = "2018-08-01", 
+                             periodicity = "daily")
+```
+
+
+Lo positivo de usar quantmod es que podemos aprovechar las funciones `chartSeries()`
+
+```{r,eval=FALSE,echo=TRUE,warning=FALSE,message=FALSE}
+chartSeries(GSPC)
+```
+
+Para verlo sin los *volume*
+
+```{r,eval=FALSE,echo=TRUE,warning=FALSE,message=FALSE}
+chartSeries(GSPC, TA = NULL)
+```
+
+Para ver los últimos 3 meses
+
+```{r,eval=FALSE,echo=TRUE,warning=FALSE,message=FALSE}
+chartSeries(GSPC, subset = "last 3 months")
+```
+
+
+## 
+
+Podemos replicar el objeto creado `sp500_precio` usando:
+
+```{r,eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
+sp500_quantmod <- as.data.frame(GSPC) %>%
+                  as.tibble() %>% 
+                  mutate(date = index(GSPC)) %>% 
+                  rename("open" = "GSPC.Open", "high" = "GSPC.High",     
+                         "low"  = "GSPC.Low" , "close"= "GSPC.Close", 
+                         "volume" = "GSPC.Volume", "adjusted" = "GSPC.Adjusted")
+```
+
+
+¿Qué podemos observar?
+
+## Ahora con ggplot2
+
+Continuaremos con el objeto `sp500_precio`, pero lo graficaremos usando ggplot2:
+
+```r
+g <- ggplot(sp500_precio) + geom_line(aes(date,adjusted), color = "red")
+g <- g + labs(title = "Precio S&P 500", subtitle = "Desde Enero 2010 hasta Julio 2018")
+g <- g + theme_tq() + scale_color_tq() 
+g <- g + xlab("Periodo") + ylab("Precio")
+g 
+```
+
+## 
+
+```{r, fig.width = 6, fig.height = 3, fig.align='center'}
+g <- ggplot(sp500_precio) + geom_line(aes(date,adjusted), color = "red")
+g <- g + labs(title = "Precio S&P 500", subtitle = "Desde Enero 2010 hasta Julio 2018")
+g <- g + theme_tq() + scale_color_tq() 
+g <- g + xlab("Periodo") + ylab("Precio")
+g 
+```
+
+##
+
+Si extrañan stata ... pueden usar
+
+```{r,fig.width = 5.5, fig.height = 2.5, fig.align='center'}
+sp500_quantmod %>%  
+     ggplot() + 
+     geom_line(aes(date,adjusted), color = "red" ) + 
+     labs(title = "Precio S&P 500", subtitle = "Desde Enero 2010 hasta Julio 2018") + 
+     theme_stata() + xlab("Periodo") + ylab("Precio") + 
+     scale_color_stata()
+```
+
+Para realizarlo deben usar la librería `ggthemes`.
