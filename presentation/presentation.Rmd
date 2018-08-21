@@ -6,8 +6,8 @@ date: "16 de agosto de 2018"
 output: 
   beamer_presentation:
     latex_engine: xelatex
-    theme: "Boadilla"
-    colortheme: "beaver"
+    theme: "Madrid"
+    colortheme: "whale"
     fonttheme: "structurebold"
     includes:
        in_header: "topmatter.tex" 
@@ -169,3 +169,113 @@ sp500_quantmod %>%
 ```
 
 Para realizarlo deben usar la librería `ggthemes`.
+
+# Multiples Datos
+
+## Descargando Multiples Datos 
+
+Ahora veremos como podemos descargar más un activo. Usaremos las siguientes empresas; Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX) 
+
+```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
+tickers <- c("ORCL", "IT", "NVDA", "NFLX")
+```
+
+```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
+data_activos  <- tq_get(tickers, 
+                        get = "stock.prices", 
+                        from = "2010-01-01", 
+                        to = "2018-08-01", 
+                        periodicity = "daily")
+```
+
+
+# Retornos y Retornos Acumulados 
+
+## Calculo Retornos
+
+```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
+retornos_activos <- data_activos %>% 
+                       group_by(symbol) %>% 
+                       tq_transmute(select = adjusted,
+                                    mutate_fun = periodReturn,
+                                    period = "daily",
+                                    type = "log",
+                                    col_rename = "retornos.diarios")
+```
+
+## Calculo Retornos Acumulados 
+
+```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
+retornos_acum_activos <- retornos_activos %>% 
+                            group_by(symbol) %>% 
+                            mutate(ret.cum = cumsum(retornos.diarios))
+```
+
+
+## Gráficando Retornos 
+
+```r
+retornos_activos %>% 
+  ggplot(mapping = aes(x = retornos.diarios, fill = symbol))+
+  geom_density(alpha = 0.5) +
+  labs(title = "Retornos Activos", 
+       subtitle = "Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX)",
+       x = "Retornos diarios", y = "Densidad") + 
+  theme_tq() +
+  scale_fill_tq() + 
+  facet_wrap(~ symbol, ncol = 2) + 
+  guides(fill=guide_legend(title="Activos:"))
+```
+
+## 
+
+```{r,fig.width = 6, fig.height = 3.25, fig.align='center'}
+retornos_activos %>% 
+  ggplot(mapping = aes(x = retornos.diarios, fill = symbol))+
+  geom_density(alpha = 0.5) +
+  labs(title = "Retornos Activos", subtitle = "Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX)",
+       x = "Retornos diarios", y = "Densidad") + 
+  theme_tq() +
+  scale_fill_tq() + 
+  facet_wrap(~ symbol, ncol = 2) + 
+  guides(fill=guide_legend(title="Activos:"))
+```
+
+## Gráficando Retornos Acumulados 
+
+```r
+retornos_acum_activos %>% 
+     ggplot(mapping = aes(x = date, y = ret.cum/100, color = symbol)) +
+     geom_line() + 
+     labs(title = "Retornos Activos", 
+          subtitle = "Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX)",
+          x = "Periodo", y = "Retorno Acumulado") + 
+     theme_tq() +
+     scale_fill_tq() + 
+     facet_wrap(~ symbol, ncol = 2) + 
+     guides(color = guide_legend(title="Activos:")) + 
+     scale_y_continuous(labels = scales::percent)
+```
+
+## 
+
+```{r,fig.width = 6, fig.height = 3.25, fig.align='center'}
+retornos_acum_activos %>% 
+     ggplot(mapping = aes(x = date, y = ret.cum/100, color = symbol)) +
+     geom_line() + 
+     labs(title = "Retornos Activos", subtitle = "Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX)",
+          x = "Periodo", y = "Retorno Acumulado") + 
+     theme_tq() +
+     scale_fill_tq() + 
+     facet_wrap(~ symbol, ncol = 2) + 
+     guides(color = guide_legend(title="Activos:")) + 
+     scale_y_continuous(labels = scales::percent)
+```
+
+
+
+
+
+
+
+
