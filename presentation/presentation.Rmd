@@ -273,9 +273,199 @@ retornos_acum_activos %>%
 ```
 
 
+# Análisis Técnico 
+
+## Bar Chart
+
+```{r}
+end <- as_date("2018-07-31")
+```
 
 
+```r
+sp500_precio %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close),
+                  color_up = "darkgreen", color_down = "darkred", size = 1) +
+    labs(title = "S&P 500 Bar Chart", 
+         subtitle = "Con un zoom 6 semanas",
+         y = "Precio de Cierre", x = "") + 
+    coord_x_date(xlim = c(end - weeks(6), end),
+                 ylim = c(2500, 3000)) + 
+    theme_tq()
+```
 
+## 
+
+```{r, fig.width = 6, fig.height = 3.25, fig.align='center'}
+sp500_precio %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close),
+                  color_up = "darkgreen", color_down = "darkred", size = 1) +
+    labs(title = "S&P 500 Bar Chart", 
+         subtitle = "Con un zoom 6 semanas",
+         y = "Precio de Cierre", x = "") + 
+    coord_x_date(xlim = c(end - weeks(6), end),
+                 ylim = c(2500, 3000)) + 
+    theme_tq()
+```
+
+
+## Candlestick Chart
+
+
+```r
+sp500_precio %>%
+     ggplot(aes(x = date, y = close)) +
+     geom_candlestick(aes(open = open, high = high, low = low, close = close),
+                      color_up = "darkgreen", color_down = "darkred", 
+                      fill_up  = "darkgreen", fill_down  = "darkred") +
+     labs(title = "S&P 500 Candlestick Chart", 
+          subtitle = "Con un zoom 6 semanas",
+          y = "Precio de Cierre", x = "") + 
+     coord_x_date(xlim = c(end - weeks(6), end),
+                  ylim = c(2500, 3000)) + 
+     theme_tq()
+```
+
+## 
+
+```{r,fig.width = 6, fig.height = 3.25, fig.align='center'}
+sp500_precio %>%
+     ggplot(aes(x = date, y = close)) +
+     geom_candlestick(aes(open = open, high = high, low = low, close = close),
+                      color_up = "darkgreen", color_down = "darkred", 
+                      fill_up  = "darkgreen", fill_down  = "darkred") +
+     labs(title = "S&P 500 Candlestick Chart", 
+          subtitle = "Con un zoom 6 semanas",
+          y = "Precio de Cierre", x = "") + 
+     coord_x_date(xlim = c(end - weeks(6), end),
+                  ylim = c(2500, 3000)) + 
+     theme_tq()
+```
+
+
+## Bandas de Bollinger 
+
+El análisis Técnico se divide en cuatro tipo: Tendencia (*Trend*), Volatilidad (*Volatility*), Momentum (*Momentum*) y Volumen (*Volume*).
+Uno de los más utilizados son las bandas de Bollinger, las que son formadas por tres líneas.
+
+- La línea central (*Middle Line*, ML) es una media móvil simple.
+
+\centering
+$SMA  = \frac{P_{M} + P_{M-1} + ... + P_{M - (n-1)}}{n} = ML$
+
+
+- La línea superior (*Top Line*, TL) es la misma línea central pero desplazada hacia arriba a un número determinado de desviaciones estándares (D).
+
+$TL = ML + (D * \sigma)$
+
+- La línea inferior (*Bottom Line*, BL) es la línea central desplazada hacia abajo al mismo número de desviaciones estándares.
+
+$BL = ML - (D * \sigma)$
+
+## Bandas de Bollinger con quantmod
+
+Realizar las Bandas no es difícil:
+```r
+# Bandas de Bollinger 
+chartSeries(GSPC, subset = "last 3 months")
+addBBands()
+```
+
+`addBBands` tiene las siguientes opciones 
+```r
+addBBands(n = 20, sd = 2, ma= "SMA", draw = "bands", on = -1)
+```
+
+Donde `n` es el numero de periodo de la media movil, `sd` las desviaciones estandar y `ma` el tipo de media movil.
+
+## Otros tipos de Análísis en quantmod
+
+**Tendencia**:
+
+|     INDICATOR                                  |	TTR NAME |	QUANTMOD NAME |
+|------------------------------------------------|:---------:|:--------------:|
+|Welles Wilder`s Directional Movement Indicator  |  	ADX    | addADX         | 
+|Double Exponential Moving Average               |	DEMA     | addDEMA        |
+|Exponential Moving Average	                     | EMA	     | addEMA         |
+|Simple Moving Average	                         | SMA	     | addSMA         |
+|Parabolic Stop and Reverse	                     | SAR       | addSAR         |
+|Exponential Volume Weighted Moving Average      |	EVWMA    | addEVWMA       |
+|Moving Average Convergence Divergence	         | MACD      | addMACD        |
+|Triple Smoothed Exponential Oscillator	         | TRIX      | addTRIX        |
+|Weighted Moving Average	                       | WMA	     | addWMA         |
+|ZLEMA	                                         | ZLEMA     |addZLEMA        |
+
+## 
+
+**Volatility**:
+
+|INDICATOR          | TTR NAME	| QUANTMOD NAME |
+|-------------------|:---------:|:-------------:|
+|Average True Range	| ATR       |	addATR        |
+|Bollinger Bands	  | BBands    |	addBBands     |
+|Price Envelope     |	N/A	      | addEnvelope   |
+
+**Volume**:
+
+|INDICATOR	        |TTR NAME	  | QUANTMOD NAME |
+|:-----------------:|:---------:|:-------------:|
+|Chaiken Money Flow	|CMF	      | addCMF        |
+|Volume	            |N/A        |	addVo         |
+
+## 
+
+**Momentum**:
+
+|INDICATOR	                | TTR NAME	| QUANTMOD NAME|
+|---------------------------|:---------:|:------------:|
+|Commodity Channel Index    |	CCI       |	addCCI       |
+|Chande Momentum Oscillator |	CMO	      | addCMO       |
+|Detrended Price Oscillator	| DPO	      | addDPO       |
+|momentum	                  |addMomentum|              |
+|Rate of Change	            | ROC	      | addROC       |
+|Relative Strength Indicator|	RSI       |	addRSI       |
+|Stocastic Momentum Index	  | SMI	      | addSMI       |
+|Williams %R	              | WPR	      | addWPR       |
+
+
+## Bandas de Bollinger con tidyquant
+
+```{r}
+end <- as_date("2018-07-31")
+```
+
+
+```r
+sp500_precio %>% 
+  ggplot(aes(x=date, y=close, open = open,
+             high = high, low = low, close = close)) +
+  geom_candlestick() +
+  geom_bbands(ma_fun = SMA, sd = 2, n = 20) +
+  labs(title = "Standard & Poor 500 Candlestick Chart", 
+       subtitle = "BBands con SMA", 
+       y = "Precio de Cierre", x = "") + 
+  coord_x_date(xlim = c(end - weeks(12), end),
+               ylim = c(2500, 3000)) + 
+  theme_tq()
+```
+
+## 
+
+```{r,fig.width = 6, fig.height = 3.25, fig.align='center'}
+sp500_precio %>% 
+  ggplot(aes(x=date, y=close, open = open,
+             high = high, low = low, close = close)) +
+  geom_candlestick() +
+  geom_bbands(ma_fun = SMA, sd = 2, n = 20) +
+  labs(title = "Standard & Poor 500 Candlestick Chart", 
+       subtitle = "BBands con SMA, últimos 6 meses", 
+       y = "Precio de Cierre", x = "") + 
+  coord_x_date(xlim = c(end - weeks(12), end),
+               ylim = c(2500, 3000)) + 
+  theme_tq()
+```
 
 
 

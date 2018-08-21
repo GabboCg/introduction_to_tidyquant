@@ -110,21 +110,83 @@ retornos_acum_activos %>%
      scale_y_continuous(labels = scales::percent)
 
 
-# Bandas de Bollinger -----------------------------------------------------
+
+# Bar Chart ---------------------------------------------------------------
 
 end <- as_date("2018-07-31")
 
+sp500_precio %>%
+    ggplot(aes(x = date, y = close)) +
+    geom_barchart(aes(open = open, high = high, low = low, close = close),
+                  color_up = "darkgreen", color_down = "darkred", size = 1) +
+    labs(title = "S&P 500 Bar Chart", 
+         subtitle = "Con un zoom 6 semanas",
+         y = "Precio de Cierre", x = "") + 
+    coord_x_date(xlim = c(end - weeks(6), end),
+                 ylim = c(2500, 3000)) + 
+    theme_tq()
+
+
+# Candlestick Chart -------------------------------------------------------
+
+sp500_precio %>%
+     ggplot(aes(x = date, y = close)) +
+     geom_candlestick(aes(open = open, high = high, low = low, close = close),
+                      color_up = "darkgreen", color_down = "darkred", 
+                      fill_up  = "darkgreen", fill_down  = "darkred") +
+     labs(title = "S&P 500 Candlestick Chart", 
+          subtitle = "Con un zoom 6 semanas",
+          y = "Precio de Cierre", x = "") + 
+     coord_x_date(xlim = c(end - weeks(6), end),
+                  ylim = c(2500, 3000)) + 
+     theme_tq()
+
+
+# Bandas de Bollinger con quantmod ----------------------------------------
+
+chartSeries(GSPC, subset = "last 3 months")
+addBBands()
+
+
+# Bandas de Bollinger con tidyquant ---------------------------------------
+
+# fijamos las cordenadas
+end <- as_date("2018-07-31")
+
+# Construimos las bandas por separdos
+sp500_bbands <- sp500_precio %>%
+                mutate(sma = runMean(close, n = 20), sdev = runSD(close, 20, sample = FALSE),
+                       up = sma + 2*sdev, dn = sma - 2*sdev) %>% 
+                na.omit()
+
+# graficamos
+sp500_bbands %>% 
+      ggplot(aes(x=date, y=close, open = open,
+                 high = high, low = low, close = close)) + 
+      geom_line(aes(date, up), linetype = "dashed") +
+      geom_line(aes(date, dn), linetype = "dashed") +
+      geom_line(aes(date, sma), linetype = "dashed") +
+      geom_candlestick() +
+      labs(title = "Standard & Poor 500 Candlestick Chart", 
+           subtitle = "BBands con SMA", 
+           y = "Closing Price", x = "") + 
+      theme_bw() + 
+      coord_x_date(xlim = c(end - weeks(12), end),
+                   ylim = c(2500, 3000)) 
+
 sp500_precio %>% 
-  ggplot(aes(x=date, y=close, open = open,
-             high = high, low = low, close = close)) +
-  geom_candlestick() +
-  geom_bbands(ma_fun = SMA, sd = 2, n = 20) +
-  labs(title = "Standard & Poor 500 Candlestick Chart", 
-       subtitle = "BBands con SMA", 
-       y = "Closing Price", x = "") + 
-  coord_x_date(xlim = c(end - weeks(24), end),
-               ylim = c(2500, 3000)) + 
-  theme_tq()
+      ggplot(aes(x=date, y=close, open = open,
+                 high = high, low = low, close = close)) +
+      geom_candlestick() +
+      geom_bbands(ma_fun = SMA, sd = 2, n = 20) +
+      labs(title = "Standard & Poor 500 Candlestick Chart", 
+           subtitle = "BBands con SMA", 
+           y = "Closing Price", x = "") + 
+      coord_x_date(xlim = c(end - weeks(12), end),
+                   ylim = c(2500, 3000)) + 
+      theme_tq()
+
+
 
 
 
