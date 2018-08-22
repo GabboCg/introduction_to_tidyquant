@@ -71,7 +71,7 @@ data_activos  <- tq_get(tickers,
 # retornos 
 retornos_activos <- data_activos %>% 
                        group_by(symbol) %>% 
-                       tq_transmute(select = adjusted,
+                       tq_transmute(select = close,
                                     mutate_fun = periodReturn,
                                     period = "daily",
                                     type = "log",
@@ -187,6 +187,42 @@ sp500_precio %>%
       theme_tq()
 
 
+# Multiples datos con quantmod --------------------------------------------
 
+tickers <- c("ORCL", "IT", "NVDA", "NFLX")
 
+getSymbols(tickers, 
+           src = "yahoo", 
+           from = "2010-01-01", 
+           to = "2018-08-01", 
+           periodicity = "daily")
+
+orcl <- as.data.frame(ORCL) %>% 
+        select(ORCL.Close) %>% 
+        rename(close = ORCL.Close) %>% 
+        mutate(date = index(ORCL), return = log(close/lag(close,1)), symbol = "orcl",
+               return = ifelse(is.na(return),0,return))  
+        
+it <- as.data.frame(IT) %>% 
+      select(IT.Close) %>% 
+      rename(close = IT.Close) %>% 
+      mutate(date = index(IT), return = log(close/lag(close,1)), symbol = "it",
+             return = ifelse(is.na(return),0,return))    
+
+nvda <- as.data.frame(NVDA) %>% 
+        select(NVDA.Close) %>% 
+        rename(close = NVDA.Close) %>% 
+        mutate(date = index(NVDA), return = log(close/lag(close,1)), symbol = "nvda",
+               return = ifelse(is.na(return),0,return))   
+
+nflx <- as.data.frame(NFLX) %>% 
+        select(NFLX.Close) %>% 
+        rename(close = NFLX.Close) %>% 
+        mutate(date = index(NFLX), return = log(close/lag(close,1)), symbol = "nflx",
+               return = ifelse(is.na(return),0,return))   
+
+rm("ORCL", "IT", "NVDA", "NFLX")
+
+return_data <- rbind(orcl, it, nvda, nflx) %>% 
+               select(date, symbol, close, return)
 

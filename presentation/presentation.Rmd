@@ -206,7 +206,7 @@ donde $p_t = log(P_t)$ es llamado "log price".
 ```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
 retornos_activos <- data_activos %>% 
                        group_by(symbol) %>% 
-                       tq_transmute(select = adjusted,
+                       tq_transmute(select = close,
                                     mutate_fun = periodReturn,
                                     period = "daily",
                                     type = "log",
@@ -293,13 +293,11 @@ retornos_acum_activos %>%
 
 ## ¿Qué es el análisis técnico?
 
-El análisis técnico consiste en detectar determinados patrones de comportamiento de los precios en el pasado, con la esperanza de que dicho patrones vuelvan a repetirse y poder así aprovecharnos de ello.
+1. El análisis técnico consiste en detectar determinados patrones de comportamiento de los precios en el pasado, con la esperanza de que dicho patrones vuelvan a repetirse y poder así aprovecharnos de ello.
 
+2. Las bases provienen de la **Teoría de Dow**.
 
-Las bases provienen de la **Teoría de Dow**.
-
-
-En esta sesiones veremos los *Bar Chart*, *Candlestick Chart* y las *Bandas de Bollinger*.
+3. En esta sesiones veremos los *Bar Chart*, *Candlestick Chart* y las *Bandas de Bollinger*.
 
 ## Bar Chart
 
