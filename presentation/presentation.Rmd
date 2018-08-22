@@ -12,6 +12,8 @@ output:
     includes:
        in_header: "topmatter.tex" 
 classoption: "aspectratio=169"
+bibliography: biblio.bib
+biblio-style: "apalike"
 ---
 
 
@@ -496,6 +498,8 @@ sp500_precio %>%
                ylim = c(2500, 3000)) + 
   theme_tq()
 ```
+
+## References  
 
 
 ##

@@ -226,3 +226,7 @@ rm("ORCL", "IT", "NVDA", "NFLX")
 return_data <- rbind(orcl, it, nvda, nflx) %>% 
                select(date, symbol, close, return)
 
+acumulado_data <- return_data %>% 
+                  group_by(symbol) %>% 
+                  mutate(acumulado = cumsum(return))
+  
