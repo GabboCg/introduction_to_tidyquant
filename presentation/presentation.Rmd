@@ -291,12 +291,25 @@ retornos_acum_activos %>%
 
 # Análisis Técnico 
 
+## ¿Qué es el análisis técnico?
+
+El análisis técnico consiste en detectar determinados patrones de comportamiento de los precios en el pasado, con la esperanza de que dicho patrones vuelvan a repetirse y poder así aprovecharnos de ello.
+
+
+Las bases provienen de la **Teoría de Dow**.
+
+
+En esta sesiones veremos los *Bar Chart*, *Candlestick Chart* y las *Bandas de Bollinger*.
+
 ## Bar Chart
 
-```{r}
+Este gráfico es llamado OHLC charts, por Open-High-Low-Close. Si el precio de cierre es mayor que el de apertura es un "up day", caso contrario es un "down day". Se recomienda verlo en un periodo del tiempo, en nuestro caso los últimos 6 semanas.
+
+```{r, eval = TRUE, echo = TRUE}
 end <- as_date("2018-07-31")
 ```
 
+Luego 
 
 ```r
 sp500_precio %>%
@@ -329,6 +342,7 @@ sp500_precio %>%
 
 ## Candlestick Chart
 
+Un candlestick chart es otra forma de representar OHLC. Lo importante es que cuando es "up day" es **bullish** "down day" es **bearish**.
 
 ```r
 sp500_precio %>%
@@ -448,7 +462,9 @@ Donde `n` es el numero de periodo de la media movil, `sd` las desviaciones estan
 
 ## Bandas de Bollinger con tidyquant
 
-```{r}
+La librería `tidyquant` tiene el layer que puede ser usada en `ggplot2` al igual que: `geom_candlestick()`, `geom_barchart()` y `geom_bbands()`
+
+```{r, eval = TRUE, echo = TRUE}
 end <- as_date("2018-07-31")
 ```
 
@@ -484,4 +500,7 @@ sp500_precio %>%
 ```
 
 
+##
+
+\maketitle
 
