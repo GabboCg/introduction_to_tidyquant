@@ -174,11 +174,13 @@ Para realizarlo deben usar la librería `ggthemes`.
 
 ## Descargando Multiples Datos 
 
-Ahora veremos como podemos descargar más un activo. Usaremos las siguientes empresas; Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX) 
+Ahora veremos como podemos descargar más de un activo. Usaremos las siguientes empresas; Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX). Comenzamos con construir un objeto `tickers` con los nombres.
 
 ```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
 tickers <- c("ORCL", "IT", "NVDA", "NFLX")
 ```
+
+Luego obtenemos los activos^[La opción `to` considera la fecha anterior a la solicitada.]. 
 
 ```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
 data_activos  <- tq_get(tickers, 
@@ -193,6 +195,14 @@ data_activos  <- tq_get(tickers,
 
 ## Calculo Retornos
 
+La formula para calcular (log) retornos es:
+
+$$
+r_t = log(1 + R_t) = log(\frac{P_t}{P_{t-1}}) = p_t - p_{t-1}
+$$
+
+donde $p_t = log(P_t)$ es llamado "log price".
+
 ```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
 retornos_activos <- data_activos %>% 
                        group_by(symbol) %>% 
@@ -205,6 +215,8 @@ retornos_activos <- data_activos %>%
 
 ## Calculo Retornos Acumulados 
 
+Como el nombre sugiere, el retorno acumulado indica el efecto agregado del precio. Podremos ver con mayor facilidad si se mantienen las perdidas (ganancias) por un periodo dado. 
+
 ```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
 retornos_acum_activos <- retornos_activos %>% 
                             group_by(symbol) %>% 
@@ -213,6 +225,8 @@ retornos_acum_activos <- retornos_activos %>%
 
 
 ## Gráficando Retornos 
+
+Una manera de graficar los retornos es usar `geom_density()`, que es la versión suavisada de un histograma y se suele usar para datos que son continuos. Intenten con `geom_line()` y vean que sucede.
 
 ```r
 retornos_activos %>% 
@@ -242,6 +256,8 @@ retornos_activos %>%
 ```
 
 ## Gráficando Retornos Acumulados 
+
+Para graficar los retornos acumulados, se recomienda usar `geom_line()`.
 
 ```r
 retornos_acum_activos %>% 
