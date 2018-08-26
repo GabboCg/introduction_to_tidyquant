@@ -12,13 +12,15 @@ output:
     includes:
        in_header: "topmatter.tex" 
 classoption: "aspectratio=169"
-bibliography: biblio.bib
+# bibliography: "biblio.bib" 
+# nocite: |
+#  @regenstein2018reproducible, @wickham2014tidy, @wickham2016r
 biblio-style: "apalike"
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+library(knitcitations)
 ```
 
 ## Información de Contacto
@@ -176,7 +178,7 @@ Para realizarlo deben usar la librería `ggthemes`.
 
 ## Descargando Multiples Datos 
 
-Ahora veremos como podemos descargar más de un activo. Usaremos las siguientes empresas; Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX). Comenzamos con construir un objeto `tickers` con los nombres.
+Ahora veremos como podemos descargar más de un activo. Usaremos las siguientes empresas: Oracle (ORCL), Intel (IT), Nvidia (NVDA) y Netflix (NFLX). Comenzamos con construir un objeto `tickers` con los nombres.
 
 ```{r, eval=TRUE,echo=TRUE,warning=FALSE,message=FALSE}
 tickers <- c("ORCL", "IT", "NVDA", "NFLX")
@@ -499,10 +501,17 @@ sp500_precio %>%
   theme_tq()
 ```
 
-## References  
 
+# Referencias
+
+## Referencias
+
+```{r, echo=FALSE, eval = TRUE, warning=FALSE, results="asis"}
+bib <- read.bibtex(file="biblio.bib")
+cleanbib()
+bib
+```
 
 ##
 
 \maketitle
-
